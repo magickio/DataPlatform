@@ -1,14 +1,17 @@
 import { defineManifestConfig } from '@uni-helper/vite-plugin-uni-manifest'
 
 export default defineManifestConfig({
-  'name': 'vitesse-uni-app',
-  'appid': '',
+  'name': 'DataPlatform',
+  'appid': '__UNI__79CAE01',
   'description': '',
   'versionName': '1.0.0',
   'versionCode': '100',
   'transformPx': false,
   /* 5+App特有相关 */
   'app-plus': {
+    compatible: {
+      ignoreVersion: true,
+    },
     usingComponents: true,
     nvueStyleCompiler: 'uni-app',
     compilerVersion: 3,
