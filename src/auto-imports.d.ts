@@ -6,9 +6,18 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const ENV: typeof import('./utils/index')['ENV']
   const EffectScope: typeof import('vue')['EffectScope']
+  const addAssistantMessage: typeof import('./utils/chatService')['addAssistantMessage']
+  const addUserMessage: typeof import('./utils/chatService')['addUserMessage']
+  const api: typeof import('./utils/index')['api']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
+  const cancelResponse: typeof import('./utils/chatService')['cancelResponse']
+  const chatService: typeof import('./utils/index')['chatService']
+  const chatState: typeof import('./utils/chatService')['chatState']
+  const clearChat: typeof import('./utils/chatService')['clearChat']
+  const clearChatData: typeof import('./utils/storage')['clearChatData']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -26,6 +35,7 @@ declare global {
   const createSharedComposable: typeof import('@vueuse/core')['createSharedComposable']
   const createTemplatePromise: typeof import('@vueuse/core')['createTemplatePromise']
   const createUnrefFn: typeof import('@vueuse/core')['createUnrefFn']
+  const currentUserId: typeof import('./utils/chatService')['currentUserId']
   const customRef: typeof import('vue')['customRef']
   const debouncedRef: typeof import('@vueuse/core')['debouncedRef']
   const debouncedWatch: typeof import('@vueuse/core')['debouncedWatch']
@@ -33,15 +43,23 @@ declare global {
   const defineComponent: typeof import('vue')['defineComponent']
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
+  const env: typeof import('./utils/env')['default']
   const extendRef: typeof import('@vueuse/core')['extendRef']
+  const getApiKey: typeof import('./utils/storage')['getApiKey']
+  const getChatHistory: typeof import('./utils/storage')['getChatHistory']
   const getContentHeight: typeof import('./utils/navHelper')['getContentHeight']
+  const getConversationId: typeof import('./utils/storage')['getConversationId']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getData: typeof import('./utils/storage')['getData']
   const getSafeAreaInsets: typeof import('./utils/navHelper')['getSafeAreaInsets']
   const getStatusBarHeight: typeof import('./utils/navHelper')['getStatusBarHeight']
+  const getUserId: typeof import('./utils/storage')['getUserId']
   const h: typeof import('vue')['h']
   const i18n: typeof import('./composables/useI18n')['i18n']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
+  const init: typeof import('./utils/init')['default']
+  const initApp: typeof import('./utils/init')['initApp']
   const inject: typeof import('vue')['inject']
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
   const isDefined: typeof import('@vueuse/core')['isDefined']
@@ -111,12 +129,25 @@ declare global {
   const refDefault: typeof import('@vueuse/core')['refDefault']
   const refThrottled: typeof import('@vueuse/core')['refThrottled']
   const refWithControl: typeof import('@vueuse/core')['refWithControl']
+  const removeData: typeof import('./utils/storage')['removeData']
   const resolveComponent: typeof import('vue')['resolveComponent']
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
+  const saveApiKey: typeof import('./utils/storage')['saveApiKey']
+  const saveChatHistory: typeof import('./utils/storage')['saveChatHistory']
+  const saveConversationId: typeof import('./utils/storage')['saveConversationId']
+  const saveData: typeof import('./utils/storage')['saveData']
+  const saveUserId: typeof import('./utils/storage')['saveUserId']
+  const sendChatMessage: typeof import('./utils/api')['sendChatMessage']
+  const sendMessage: typeof import('./utils/chatService')['sendMessage']
+  const sendStreamChatMessage: typeof import('./utils/api')['sendStreamChatMessage']
+  const setApiKey: typeof import('./utils/api')['setApiKey']
+  const setUserId: typeof import('./utils/chatService')['setUserId']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
+  const stopChatResponse: typeof import('./utils/api')['stopChatResponse']
+  const storage: typeof import('./utils/storage')['default']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
   const templateRef: typeof import('@vueuse/core')['templateRef']
@@ -136,6 +167,7 @@ declare global {
   const unref: typeof import('vue')['unref']
   const unrefElement: typeof import('@vueuse/core')['unrefElement']
   const until: typeof import('@vueuse/core')['until']
+  const updateMessage: typeof import('./utils/chatService')['updateMessage']
   const useActiveElement: typeof import('@vueuse/core')['useActiveElement']
   const useAnimate: typeof import('@vueuse/core')['useAnimate']
   const useArrayDifference: typeof import('@vueuse/core')['useArrayDifference']
@@ -165,7 +197,6 @@ declare global {
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
-  const useCount: typeof import('./composables/useCount')['useCount']
   const useCountdown: typeof import('@vueuse/core')['useCountdown']
   const useCounter: typeof import('@vueuse/core')['useCounter']
   const useCssModule: typeof import('vue')['useCssModule']
@@ -249,7 +280,6 @@ declare global {
   const usePreferredReducedMotion: typeof import('@vueuse/core')['usePreferredReducedMotion']
   const usePreferredReducedTransparency: typeof import('@vueuse/core')['usePreferredReducedTransparency']
   const usePrevious: typeof import('@vueuse/core')['usePrevious']
-  const useQuery: typeof import('./composables/useQuery')['useQuery']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
@@ -303,6 +333,7 @@ declare global {
   const useWindowFocus: typeof import('@vueuse/core')['useWindowFocus']
   const useWindowScroll: typeof import('@vueuse/core')['useWindowScroll']
   const useWindowSize: typeof import('@vueuse/core')['useWindowSize']
+  const utils: typeof import('./utils/index')['default']
   const watch: typeof import('vue')['watch']
   const watchArray: typeof import('@vueuse/core')['watchArray']
   const watchAtMost: typeof import('@vueuse/core')['watchAtMost']
@@ -325,6 +356,12 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { ChatMessage, ChatResponse, StreamChatEvent } from './utils/api'
+  import('./utils/api')
+  // @ts-ignore
+  export type { Message } from './utils/chatService'
+  import('./utils/chatService')
 }
 
 // for vue template auto import
@@ -332,9 +369,18 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly ENV: UnwrapRef<typeof import('./utils/index')['ENV']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly addAssistantMessage: UnwrapRef<typeof import('./utils/chatService')['addAssistantMessage']>
+    readonly addUserMessage: UnwrapRef<typeof import('./utils/chatService')['addUserMessage']>
+    readonly api: UnwrapRef<typeof import('./utils/index')['api']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly cancelResponse: UnwrapRef<typeof import('./utils/chatService')['cancelResponse']>
+    readonly chatService: UnwrapRef<typeof import('./utils/index')['chatService']>
+    readonly chatState: UnwrapRef<typeof import('./utils/chatService')['chatState']>
+    readonly clearChat: UnwrapRef<typeof import('./utils/chatService')['clearChat']>
+    readonly clearChatData: UnwrapRef<typeof import('./utils/storage')['clearChatData']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -352,6 +398,7 @@ declare module 'vue' {
     readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
+    readonly currentUserId: UnwrapRef<typeof import('./utils/chatService')['currentUserId']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
     readonly debouncedWatch: UnwrapRef<typeof import('@vueuse/core')['debouncedWatch']>
@@ -359,15 +406,23 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly env: UnwrapRef<typeof import('./utils/env')['default']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly getApiKey: UnwrapRef<typeof import('./utils/storage')['getApiKey']>
+    readonly getChatHistory: UnwrapRef<typeof import('./utils/storage')['getChatHistory']>
     readonly getContentHeight: UnwrapRef<typeof import('./utils/navHelper')['getContentHeight']>
+    readonly getConversationId: UnwrapRef<typeof import('./utils/storage')['getConversationId']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getData: UnwrapRef<typeof import('./utils/storage')['getData']>
     readonly getSafeAreaInsets: UnwrapRef<typeof import('./utils/navHelper')['getSafeAreaInsets']>
     readonly getStatusBarHeight: UnwrapRef<typeof import('./utils/navHelper')['getStatusBarHeight']>
+    readonly getUserId: UnwrapRef<typeof import('./utils/storage')['getUserId']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly i18n: UnwrapRef<typeof import('./composables/useI18n')['i18n']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
+    readonly init: UnwrapRef<typeof import('./utils/init')['default']>
+    readonly initApp: UnwrapRef<typeof import('./utils/init')['initApp']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
@@ -437,12 +492,25 @@ declare module 'vue' {
     readonly refDefault: UnwrapRef<typeof import('@vueuse/core')['refDefault']>
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
+    readonly removeData: UnwrapRef<typeof import('./utils/storage')['removeData']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
+    readonly saveApiKey: UnwrapRef<typeof import('./utils/storage')['saveApiKey']>
+    readonly saveChatHistory: UnwrapRef<typeof import('./utils/storage')['saveChatHistory']>
+    readonly saveConversationId: UnwrapRef<typeof import('./utils/storage')['saveConversationId']>
+    readonly saveData: UnwrapRef<typeof import('./utils/storage')['saveData']>
+    readonly saveUserId: UnwrapRef<typeof import('./utils/storage')['saveUserId']>
+    readonly sendChatMessage: UnwrapRef<typeof import('./utils/api')['sendChatMessage']>
+    readonly sendMessage: UnwrapRef<typeof import('./utils/chatService')['sendMessage']>
+    readonly sendStreamChatMessage: UnwrapRef<typeof import('./utils/api')['sendStreamChatMessage']>
+    readonly setApiKey: UnwrapRef<typeof import('./utils/api')['setApiKey']>
+    readonly setUserId: UnwrapRef<typeof import('./utils/chatService')['setUserId']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly stopChatResponse: UnwrapRef<typeof import('./utils/api')['stopChatResponse']>
+    readonly storage: UnwrapRef<typeof import('./utils/storage')['default']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly templateRef: UnwrapRef<typeof import('@vueuse/core')['templateRef']>
@@ -462,6 +530,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
+    readonly updateMessage: UnwrapRef<typeof import('./utils/chatService')['updateMessage']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
@@ -627,6 +696,7 @@ declare module 'vue' {
     readonly useWindowFocus: UnwrapRef<typeof import('@vueuse/core')['useWindowFocus']>
     readonly useWindowScroll: UnwrapRef<typeof import('@vueuse/core')['useWindowScroll']>
     readonly useWindowSize: UnwrapRef<typeof import('@vueuse/core')['useWindowSize']>
+    readonly utils: UnwrapRef<typeof import('./utils/index')['default']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchArray: UnwrapRef<typeof import('@vueuse/core')['watchArray']>
     readonly watchAtMost: UnwrapRef<typeof import('@vueuse/core')['watchAtMost']>

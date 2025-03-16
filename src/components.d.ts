@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     LanguageSwitcher: typeof import('./components/LanguageSwitcher.vue')['default']
+    MarkdownRenderer: typeof import('./components/MarkdownRenderer.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
   }
 }

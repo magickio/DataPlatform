@@ -1,5 +1,11 @@
 <script setup lang="ts">
-onLaunch(() => {})
+import { initApp } from './utils/init'
+
+// 应用启动时初始化
+onLaunch(() => {
+  // 初始化API和聊天服务
+  initApp()
+})
 </script>
 
 <style>

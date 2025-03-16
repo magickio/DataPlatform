@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NavBar from '@/components/NavBar.vue'
 import { useI18n } from '@/composables/useI18n'
+import { api, storage } from '@/utils'
 import { getContentHeight } from '@/utils/navHelper'
 import { ref } from 'vue'
 
@@ -10,10 +11,37 @@ const { t, locale, availableLocales, changeLocale } = useI18n()
 const historyEnabled = ref(true)
 // 滚动区域高度
 const scrollHeight = ref(getContentHeight())
+// API密钥
+const apiKey = ref(storage.getApiKey())
+// 是否显示API密钥
+const showApiKey = ref(false)
 
 // 切换历史记录状态
 function toggleHistory(e: any) {
   historyEnabled.value = e.detail.value
+}
+
+// 切换显示API密钥
+function toggleShowApiKey() {
+  showApiKey.value = !showApiKey.value
+}
+
+// 保存API密钥
+function saveApiKey() {
+  if (apiKey.value) {
+    storage.saveApiKey(apiKey.value)
+    api.setApiKey(apiKey.value)
+    uni.showToast({
+      title: '保存成功',
+      icon: 'success',
+    })
+  }
+  else {
+    uni.showToast({
+      title: 'API密钥不能为空',
+      icon: 'none',
+    })
+  }
 }
 
 // 切换语言
@@ -80,6 +108,38 @@ function logout() {
       show-scrollbar
       bounces
     >
+      <!-- API密钥设置 -->
+      <view class="settings-section">
+        <view class="settings-section-title">
+          API设置
+        </view>
+
+        <view class="settings-item">
+          <view class="settings-item-label">
+            Dify API密钥
+          </view>
+          <view class="settings-item-content">
+            <input
+              v-model="apiKey"
+              :password="!showApiKey"
+              placeholder="请输入Dify API密钥"
+              class="api-key-input"
+            >
+            <view class="settings-item-actions">
+              <view class="action-icon" @click="toggleShowApiKey">
+                <view :class="showApiKey ? 'i-fa-solid:eye-slash' : 'i-fa-solid:eye'" />
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="save-api-key">
+          <button class="save-button" @click="saveApiKey">
+            保存API密钥
+          </button>
+        </view>
+      </view>
+
       <!-- 用户信息 -->
       <view class="border-b border-gray-200 bg-white p-4">
         <view class="flex items-center">
@@ -285,5 +345,44 @@ page {
 .language-option.active {
   background-color: #007aff;
   color: #ffffff;
+}
+
+/* API密钥输入框样式 */
+.api-key-input {
+  flex: 1;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.settings-item-actions {
+  display: flex;
+  align-items: center;
+}
+
+.action-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.save-api-key {
+  margin-top: 10px;
+  padding: 0 15px;
+}
+
+.save-button {
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
 }
 </style>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import NavBar from '@/components/NavBar.vue'
+import { chatService } from '@/utils'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 // 状态变量
@@ -9,6 +11,11 @@ const inputText = ref('')
 const isKeyboardVisible = ref(false)
 const keyboardHeight = ref(0)
 const inputBottom = ref(0)
+
+// 聊天相关状态
+const { chatState } = chatService
+const isSending = computed(() => chatState.isLoading)
+const messages = computed(() => chatState.messages)
 
 // 计算属性：内容区域的底部内边距
 const contentPaddingBottom = computed(() => {
@@ -105,12 +112,27 @@ function toggleRecording() {
   isRecording.value = !isRecording.value
 }
 
-function sendMessage() {
+// 发送消息
+async function sendMessage() {
   if (inputText.value.trim()) {
-    console.warn('发送消息:', inputText.value)
-    // 这里可以添加发送消息的逻辑
+    // 准备消息选项
+    const options = {
+      // 如果选择了深度思考模式，可以添加相关提示
+      inputs: activeModes.value.has('thinking') ? { thinking_depth: 'deep' } : {},
+      // 如果选择了联网搜索模式，可以添加相关标记
+      web_search: activeModes.value.has('search'),
+    }
+
+    // 发送消息
+    const content = inputText.value
     inputText.value = ''
+    await chatService.sendMessage(content, options)
   }
+}
+
+// 取消响应
+function cancelResponse() {
+  chatService.cancelResponse()
 }
 
 // 处理输入框聚焦
@@ -128,6 +150,28 @@ function handleBlur() {
       inputBottom.value = 0
     }
   }, 100)
+}
+
+// 格式化时间
+function _formatTime(timestamp: number): string {
+  // 保留此函数，虽然在UI中不再显示时间，但可能在其他地方需要使用
+  const date = new Date(timestamp)
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
+// 清除聊天记录，开始新对话
+function startNewChat() {
+  uni.showModal({
+    title: '提示',
+    content: '确定要开始新的对话吗？当前对话记录将被清除。',
+    success: (res) => {
+      if (res.confirm) {
+        chatService.clearChat()
+      }
+    },
+  })
 }
 </script>
 
@@ -160,8 +204,43 @@ function handleBlur() {
           </text>
         </view>
 
+        <!-- 聊天消息区域 -->
+        <view v-if="messages.length > 0" class="mb-6">
+          <view class="space-y-0">
+            <view
+              v-for="message in messages"
+              :key="message.id"
+              class="message-item px-5 py-4" :class="[
+                message.role === 'user' ? 'user-message' : 'assistant-message',
+              ]"
+            >
+              <view class="mx-auto">
+                <!-- 用户消息直接显示 -->
+                <view v-if="message.role === 'user'" class="flex justify-end">
+                  <view class="user-bubble message-content">
+                    {{ message.content }}
+                  </view>
+                </view>
+                <!-- AI消息使用Markdown渲染器 -->
+                <view v-else class="ai-message">
+                  <MarkdownRenderer :content="message.content" />
+                  <!-- 只有当消息是最后一条助手消息，状态为sending，且全局加载状态为true时才显示加载动画 -->
+                  <view
+                    v-if="message.status === 'sending' && isSending && message.id === messages[messages.length - 1].id && message.role === 'assistant'"
+                    class="mt-2 flex items-center text-xs text-gray-400"
+                  >
+                    <view class="loading-dots">
+                      <text>.</text><text>.</text><text>.</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
         <!-- 领域选择 -->
-        <view class="mb-6">
+        <view v-if="messages.length === 0" class="mb-6">
           <view class="mb-3 flex items-center justify-between">
             <text class="text-lg font-semibold">
               选择业务领域
@@ -192,7 +271,7 @@ function handleBlur() {
         </view>
 
         <!-- 最近分析 -->
-        <view class="mb-6">
+        <view v-if="messages.length === 0" class="mb-6">
           <text class="mb-3 block text-lg font-semibold">
             最近分析
           </text>
@@ -235,6 +314,14 @@ function handleBlur() {
         bottom: `${inputBottom}px`,
       }"
     >
+      <!-- 新对话按钮 - 当有消息时显示 -->
+      <view v-if="messages.length > 0" class="new-chat-button">
+        <view class="new-chat-button-inner" @click="startNewChat">
+          <view class="i-fa-solid:plus mr-1 inline-block" />
+          <text>开启新对话</text>
+        </view>
+      </view>
+
       <!-- 模式切换 -->
       <view class="mb-3 flex justify-center">
         <view class="mode-toggle flex rounded-full bg-gray-100 p-0.5">
@@ -263,8 +350,9 @@ function handleBlur() {
           v-model="inputText"
           type="text"
           placeholder="输入您的分析需求..."
-          class="w-full rounded-full bg-gray-100 py-3 pl-4 pr-16 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-[72%] rounded-full bg-gray-100 py-3 pl-4 pr-20 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           :adjust-position="false"
+          :disabled="isSending"
           @focus="handleFocus"
           @blur="handleBlur"
         >
@@ -277,8 +365,19 @@ function handleBlur() {
           >
             <view class="i-fa-solid:microphone text-current" />
           </view>
-          <view class="text-blue-600" @click="sendMessage">
+          <view
+            v-if="!isSending"
+            class="text-blue-600"
+            @click="sendMessage"
+          >
             <view class="i-fa-solid:paper-plane text-current" />
+          </view>
+          <view
+            v-else
+            class="text-red-500"
+            @click="cancelResponse"
+          >
+            <view class="i-fa-solid:times-circle text-current" />
           </view>
         </view>
       </view>
@@ -308,7 +407,7 @@ function handleBlur() {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
 }
@@ -343,5 +442,89 @@ function handleBlur() {
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   z-index: 99;
+}
+
+/* 消息样式 */
+.message-item {
+  position: relative;
+  margin-bottom: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-message {
+  background-color: #ffffff;
+}
+
+.assistant-message {
+  background-color: #ffffff;
+}
+
+.message-content {
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* 用户消息气泡 */
+.user-bubble {
+  display: inline-block;
+  background-color: #f2edf3;
+  border-radius: 12px;
+  padding: 8px 12px;
+  max-width: 100%;
+}
+
+/* AI消息样式 */
+.ai-message {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* 加载动画 */
+@keyframes loading {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-dots text {
+  animation: loading 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.loading-dots text:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots text:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* 新对话按钮样式 */
+.new-chat-button {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.new-chat-button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #666;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eaeaea;
+}
+
+.new-chat-button-inner:active {
+  background-color: #f5f5f5;
 }
 </style>
