@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析结果 - 企业智能分析平台</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 8%;
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease;
+        }
+        .input-area {
+            border-top: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        .mode-toggle {
+            background-color: #f1f5f9;
+            border-radius: 20px;
+            padding: 2px;
+        }
+        .mode-toggle-btn {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .mode-toggle-btn.active {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .tab-button {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        .voice-btn {
+            transition: all 0.2s ease;
+        }
+        .voice-btn:active {
+            transform: scale(0.95);
+            background-color: #e5e7eb;
+        }
+        .voice-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="flex items-center">
+            <a href="main.html" class="text-gray-700">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <span class="font-semibold">分析结果</span>
+        </div>
+        <div class="flex items-center">
+            <i class="fas fa-share-alt text-blue-600 mr-4"></i>
+            <a href="settings.html" class="text-gray-500">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-auto">
+        <!-- 查询信息 -->
+        <div class="p-4 bg-white border-b border-gray-200">
+            <div class="flex items-start justify-between mb-2">
+                <h1 class="text-xl font-bold">Q2财务报表分析</h1>
+                <span class="text-xs text-gray-500">2023-07-15</span>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-sm text-blue-800">
+                <i class="fas fa-search mr-2"></i>
+                <span>分析Q2财务报表，重点关注营收增长趋势和成本结构变化</span>
+            </div>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="flex border-b border-gray-200 bg-white">
+            <button class="tab-button active">概览</button>
+            <button class="tab-button">详细分析</button>
+            <button class="tab-button">建议</button>
+        </div>
+
+        <!-- 分析内容 -->
+        <div class="p-4">
+            <!-- 关键指标 -->
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3">关键指标</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">季度营收</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">¥2.8亿</span>
+                            <span class="ml-2 text-green-500">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">毛利率</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">38.2%</span>
+                            <span class="ml-2 text-yellow-500">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 38.2%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">运营成本</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">¥0.9亿</span>
+                            <span class="ml-2 text-red-500">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">净利润</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">¥0.6亿</span>
+                            <span class="ml-2 text-green-500">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 营收趋势图 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-medium">Q2营收构成</h3>
+                    <div class="text-xs text-gray-500">
+                        <span class="text-blue-500 font-medium">单位：百万元</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">产品销售</span>
+                            <span class="text-sm font-medium">¥180</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 64%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">服务收入</span>
+                            <span class="text-sm font-medium">¥65</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 23%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">授权许可</span>
+                            <span class="text-sm font-medium">¥25</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 h-2 rounded-full" style="width: 9%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">其他收入</span>
+                            <span class="text-sm font-medium">¥10</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-600 h-2 rounded-full" style="width: 4%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-gray-100">
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium">总计</span>
+                        <span class="text-sm font-medium">¥280</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析摘要 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">分析摘要</h3>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p>Q2财季营收达到2.8亿元，同比增长12.4%，环比增长7.2%，超出市场预期。</p>
+                    <p>毛利率为38.2%，同比下降1.5个百分点，主要受原材料成本上涨和供应链压力影响。</p>
+                    <p>运营成本增长8.7%，主要由于研发投入增加和新市场拓展费用上升。</p>
+                    <p>净利润同比增长5.2%，低于营收增速，反映出成本压力对盈利能力的影响。</p>
+                </div>
+            </div>
+
+            <!-- 成本结构 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">成本结构分析</h3>
+                <div class="relative pt-1">
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block text-blue-600">
+                                原材料 (42%)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
+                        <div style="width: 42%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
+                    </div>
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block text-green-600">
+                                人力成本 (28%)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-green-200">
+                        <div style="width: 28%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-600"></div>
+                    </div>
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block text-purple-600">
+                                研发投入 (15%)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200">
+                        <div style="width: 15%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-600"></div>
+                    </div>
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block text-yellow-600">
+                                营销费用 (10%)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-yellow-200">
+                        <div style="width: 10%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-yellow-600"></div>
+                    </div>
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block text-gray-600">
+                                其他 (5%)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                        <div style="width: 5%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gray-600"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 建议 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">战略建议</h3>
+                <div class="space-y-3">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-lightbulb text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700">优化供应链管理，通过长期合约锁定关键原材料价格，减轻成本波动影响。</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-lightbulb text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700">加强研发投入的ROI管理，确保研发支出能够转化为产品竞争力和市场份额。</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-lightbulb text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700">考虑调整产品定价策略，在保持市场竞争力的同时，适当转嫁部分成本压力。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部输入区 -->
+    <div class="input-area p-4">
+        <!-- 模式切换 -->
+        <div class="flex justify-center mb-3">
+            <div class="mode-toggle flex">
+                <button class="mode-toggle-btn active">
+                    <i class="fas fa-brain mr-1"></i> 深度思考
+                </button>
+                <button class="mode-toggle-btn">
+                    <i class="fas fa-globe mr-1"></i> 联网搜索
+                </button>
+            </div>
+        </div>
+        
+        <!-- 输入框 -->
+        <div class="relative">
+            <input type="text" placeholder="提问或要求进一步分析..." class="w-full bg-gray-100 rounded-full py-3 pl-4 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                <button class="voice-btn text-gray-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 mr-1">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="text-blue-600">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -2,6 +2,10 @@ export default {
   welcome: {
     title: 'Enterprise Intelligence Analysis Platform',
     subtitle: 'Exclusive Intelligent Decision Assistant for the Group',
+    startWith: 'Start a new journey with',
+    description: 'Explore the infinite possibilities of smart living, starting your new experience here.',
+    skip: 'Skip',
+    login: 'Login',
     features: {
       dataAnalysis: 'Intelligent Data Analysis and Visualization',
       naturalLanguage: 'Natural Language Query for Enterprise Data',
@@ -9,7 +13,7 @@ export default {
     },
     startButton: 'Login',
     copyright: '© 2023 Enterprise Intelligence Analysis Platform · XingYun Big Data',
-    login: {
+    loginForm: {
       username: 'Username',
       password: 'Password',
       usernamePlaceholder: 'Enter your username',

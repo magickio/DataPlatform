@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stella Center</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+        .accent-color {
+            background-color: #f5e8c9;
+            color: #1a1a1a;
+        }
+        .nav-icon {
+            color: #777;
+        }
+        .nav-icon.active {
+            color: #f5e8c9;
+        }
+        .tab-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .menu-item {
+            border-bottom: 1px solid #333;
+        }
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+        }
+        .productivity-section {
+            background-color: #f5e8c9;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>12:30</div>
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="flex items-center justify-between px-4 py-3">
+        <button class="text-2xl">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-xl font-medium">Stella Center</h1>
+        <div class="w-6"></div>
+    </div>
+
+    <!-- 绿色积分 -->
+    <div class="px-4 py-4 flex justify-between items-center">
+        <div>
+            <h2 class="text-xl">绿色积分</h2>
+            <p class="text-3xl font-bold">1,389</p>
+        </div>
+        <a href="#" class="accent-color p-4">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <!-- 碳足迹 -->
+    <div class="menu-item px-4 py-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="menu-icon mr-4">
+                    <i class="fas fa-leaf text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg">碳足迹</h3>
+                    <p class="text-sm text-gray-400">减少浪费，降低成本。</p>
+                </div>
+            </div>
+            <a href="#" class="accent-color p-4">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Green E-Bike -->
+    <div class="menu-item px-4 py-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="menu-icon mr-4">
+                    <i class="fas fa-bicycle text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg">Green E-Bike</h3>
+                    <p class="text-sm text-gray-400">过更环保的生活。</p>
+                </div>
+            </div>
+            <a href="#" class="accent-color p-4">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 生产力工具 -->
+    <div class="productivity-section py-2 px-4 mt-4">
+        <h3 class="text-center py-2">生产力的小部件</h3>
+        <div class="grid grid-cols-2 gap-px bg-gray-300">
+            <a href="#" class="bg-white p-4 flex flex-col items-center">
+                <div class="menu-icon mb-2">
+                    <i class="fas fa-comment-alt text-2xl text-gray-700"></i>
+                </div>
+                <p>反馈</p>
+                <i class="fas fa-chevron-right text-gray-400 mt-2"></i>
+            </a>
+            <a href="#" class="bg-white p-4 flex flex-col items-center">
+                <div class="menu-icon mb-2">
+                    <i class="fas fa-question-circle text-2xl text-gray-700"></i>
+                </div>
+                <p>问卷</p>
+                <i class="fas fa-chevron-right text-gray-400 mt-2"></i>
+            </a>
+            <a href="#" class="bg-white p-4 flex flex-col items-center">
+                <div class="menu-icon mb-2">
+                    <i class="fas fa-address-book text-2xl text-gray-700"></i>
+                </div>
+                <p>通讯簿</p>
+                <i class="fas fa-chevron-right text-gray-400 mt-2"></i>
+            </a>
+            <a href="#" class="bg-white p-4 flex flex-col items-center">
+                <div class="menu-icon mb-2">
+                    <i class="fas fa-graduation-cap text-2xl text-gray-700"></i>
+                </div>
+                <p>培训中心</p>
+                <i class="fas fa-chevron-right text-gray-400 mt-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="mt-auto border-t border-gray-800">
+        <div class="tab-container py-4">
+            <a href="#" class="flex flex-col items-center">
+                <i class="fas fa-leaf text-xl nav-icon"></i>
+            </a>
+            <a href="#" class="flex flex-col items-center">
+                <i class="fas fa-bullhorn text-xl nav-icon"></i>
+            </a>
+            <a href="#" class="flex flex-col items-center">
+                <i class="fas fa-th-large text-xl nav-icon active"></i>
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

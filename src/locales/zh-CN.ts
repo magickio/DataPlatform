@@ -2,6 +2,10 @@ export default {
   welcome: {
     title: '企业智能分析平台',
     subtitle: '集团专属的智能决策助手',
+    startWith: 'Start a new journey with',
+    description: '探索智能生活的无限可能，从这里开始您的全新体验。',
+    skip: '跳过',
+    login: '登录',
     features: {
       dataAnalysis: '智能数据分析与可视化',
       naturalLanguage: '自然语言查询企业数据',
@@ -9,7 +13,7 @@ export default {
     },
     startButton: '登录',
     copyright: '© 2023 企业智能分析平台 · 兴云大数据',
-    login: {
+    loginForm: {
       username: '账号',
       password: '密码',
       usernamePlaceholder: '请输入账号',

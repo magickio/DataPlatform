@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stella - AI助手</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 隐藏滚动条但保持滚动功能 */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            background: transparent;
+        }
+        
+        /* 兼容Firefox */
+        * {
+            scrollbar-width: none;
+        }
+        
+        /* 兼容IE */
+        * {
+            -ms-overflow-style: none;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: #555555;
+            z-index: 50;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background-color: #ffffff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+        
+        .accent-color {
+            color: #8e6f47;
+        }
+        
+        .accent-bg {
+            background-color: #8e6f47;
+            color: #ffffff;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #f8f8f8;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .user-message {
+            margin-left: auto;
+            background-color: #e6e6e6;
+            border-radius: 18px 18px 4px 18px;
+            padding: 12px 16px;
+            color: #333333;
+        }
+        
+        .ai-message {
+            max-width: 100%;
+            margin-right: auto;
+            background-color: #ffffff;
+            border-radius: 18px 18px 18px 4px;
+            padding: 12px 16px;
+            position: relative;
+            color: #333333;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .ai-message::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background-color: #8e6f47;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+        
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            border-radius: 24px;
+            padding: 0 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #333333;
+            padding: 12px 0;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .send-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #8e6f47;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 领域选择抽屉 */
+        .domain-drawer {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding-top: 60px;
+        }
+        
+        .domain-drawer.open {
+            transform: translateX(300px);
+        }
+        
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .domain-item {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .domain-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .domain-item.active {
+            background-color: rgba(142, 111, 71, 0.1);
+            border-left: 3px solid #8e6f47;
+        }
+        
+        .domain-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: #8e6f47;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-left: 12px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #8e6f47;
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0.6;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation: pulse 1.5s infinite 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation: pulse 1.5s infinite 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation: pulse 1.5s infinite 0.4s;
+        }
+        
+        /* 聊天历史抽屉 */
+        .history-drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding-top: 60px;
+        }
+        
+        .history-drawer.open {
+            transform: translateX(-300px);
+        }
+        
+        .history-item {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .history-item.active {
+            background-color: rgba(142, 111, 71, 0.1);
+            border-left: 3px solid #8e6f47;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .history-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #555;
+        }
+        
+        .empty-history {
+            padding: 32px 16px;
+            text-align: center;
+            color: #888;
+        }
+        
+        .empty-history i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* 新对话悬浮按钮 */
+        .new-chat-button {
+            position: fixed;
+            left: 85%;
+            transform: translateX(-50%);
+            bottom: 130px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(142, 111, 71, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 30;
+            transition: all 0.3s ease;
+        }
+        
+        .new-chat-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            background-color: rgba(142, 111, 71, 1);
+        }
+        
+        .new-chat-button i {
+            font-size: 18px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        
+        .new-chat-button:hover .tooltip {
+            opacity: 1;
+        }
+        
+        /* 图数据结构展示区域 */
+        .graph-container {
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            height: 0;
+            background-color: #ffffff;
+            transition: height 0.3s ease;
+            z-index: 25;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .graph-container.open {
+            height: 50vh;
+        }
+        
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .graph-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .graph-controls {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .graph-control-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            color: #8e6f47;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        /* 结构化数据展示 */
+        .structured-data {
+            background-color: #f8f8f8;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 8px;
+            font-family: monospace;
+            overflow-x: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .structured-data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .structured-data-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e6f47;
+        }
+        
+        .structured-data-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .structured-data-action {
+            font-size: 12px;
+            color: #8e6f47;
+            cursor: pointer;
+        }
+        
+        .json-key {
+            color: #8e6f47;
+        }
+        
+        .json-value {
+            color: #333;
+        }
+        
+        .json-string {
+            color: #0a7a4c;
+        }
+        
+        .json-number {
+            color: #1a5fb4;
+        }
+        
+        .json-boolean {
+            color: #a51d2d;
+        }
+        
+        .json-null {
+            color: #813d9c;
+        }
+        
+        /* 搜索结果展示 */
+        .search-results {
+            background-color: #f8f8f8;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        
+        .search-result-item {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-result-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .search-result-title {
+            font-weight: 600;
+            color: #8e6f47;
+            margin-bottom: 4px;
+        }
+        
+        .search-result-snippet {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .search-result-url {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            padding: 8px 16px;
+            gap: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+        }
+        
+        .tool-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e6f47;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            background-color: rgba(142, 111, 71, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tool-button:hover {
+            background-color: rgba(142, 111, 71, 0.2);
+        }
+        
+        .tool-button i {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>12:29</div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="flex items-center">
+                <button id="domain-button" class="mr-4 text-xl text-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="text-lg font-medium text-gray-800">
+                    <span class="accent-color">SMART</span> STELLA
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="history-button" class="text-xl text-gray-700">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button class="text-xl text-gray-700">
+                    <a class="far fa-user-circle" href="settings.html"></a>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 聊天容器 -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+                <!-- AI欢迎消息 -->
+                <div class="message ai-message">
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    您好！我是您的智能助手Stella。今天我能为您做些什么？
+                </div>
+                
+                <!-- 用户消息示例 -->
+                <div class="message user-message">
+                    <div class="mb-1 text-xs text-gray-500 text-right">您</div>
+                    你能做什么？
+                </div>
+                
+                <!-- AI回复示例 -->
+                <div class="message ai-message">
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    <p>我可以帮助您回答问题、提供信息、协助日常任务、进行创意写作、翻译语言等。您可以通过左上角的菜单选择不同的专业领域，让我更好地为您服务。</p>
+                    
+                    <p>我还可以：</p>
+                    <ul class="list-disc pl-5 mt-2 mb-2">
+                        <li>展示图数据结构和关系网络</li>
+                        <li>输出结构化数据（如JSON、表格）</li>
+                        <li>搜索互联网获取最新信息</li>
+                    </ul>
+                    
+                    <p>请告诉我您需要什么帮助？</p>
+                </div>
+                
+                <!-- 结构化数据示例 -->
+                <div class="message user-message">
+                    <div class="mb-1 text-xs text-gray-500 text-right">您</div>
+                    给我展示一下结构化数据的例子
+                </div>
+                
+                <div class="message ai-message">
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    <p>以下是一个结构化数据的示例，这是一个公司员工的JSON格式数据：</p>
+                    
+                    <div class="structured-data">
+                        <div class="structured-data-header">
+                            <div class="structured-data-title">员工数据 (JSON)</div>
+                            <div class="structured-data-actions">
+                                <div class="structured-data-action"><i class="fas fa-copy"></i> 复制</div>
+                                <div class="structured-data-action"><i class="fas fa-download"></i> 下载</div>
+                            </div>
+                        </div>
+<pre>{
+  <span class="json-key">"employees"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-number">1</span>,
+      <span class="json-key">"name"</span>: <span class="json-string">"张三"</span>,
+      <span class="json-key">"department"</span>: <span class="json-string">"研发部"</span>,
+      <span class="json-key">"position"</span>: <span class="json-string">"高级工程师"</span>,
+      <span class="json-key">"skills"</span>: [<span class="json-string">"Java"</span>, <span class="json-string">"Python"</span>, <span class="json-string">"数据分析"</span>],
+      <span class="json-key">"active"</span>: <span class="json-boolean">true</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-number">2</span>,
+      <span class="json-key">"name"</span>: <span class="json-string">"李四"</span>,
+      <span class="json-key">"department"</span>: <span class="json-string">"市场部"</span>,
+      <span class="json-key">"position"</span>: <span class="json-string">"市场经理"</span>,
+      <span class="json-key">"skills"</span>: [<span class="json-string">"市场分析"</span>, <span class="json-string">"品牌策划"</span>],
+      <span class="json-key">"active"</span>: <span class="json-boolean">true</span>
+    }
+  ],
+  <span class="json-key">"company"</span>: <span class="json-string">"示例科技有限公司"</span>,
+  <span class="json-key">"updated"</span>: <span class="json-string">"2023-06-15"</span>
+}</pre>
+                    </div>
+                    
+                    <p class="mt-3">您可以要求我将数据转换为不同的格式，或者基于您提供的信息生成结构化数据。</p>
+                </div>
+                
+                <!-- 图数据结构示例 -->
+                <div class="message user-message">
+                    <div class="mb-1 text-xs text-gray-500 text-right">您</div>
+                    展示一个图数据结构的例子
+                </div>
+                
+                <div class="message ai-message">
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    <p>我可以为您展示一个简单的图数据结构示例。以下是一个公司组织结构的关系图：</p>
+                    
+                    <div class="mt-3 mb-3">
+                        <button id="show-graph-button" class="tool-button">
+                            <i class="fas fa-project-diagram"></i> 查看关系图
+                        </button>
+                    </div>
+                    
+                    <p>这个图展示了公司内部的汇报关系和部门结构。您可以通过图形界面直观地了解各个节点之间的关系。</p>
+                    
+                    <p class="mt-2">您还可以要求我基于特定领域的数据生成关系图，例如：</p>
+                    <ul class="list-disc pl-5 mt-1">
+                        <li>知识图谱</li>
+                        <li>社交网络关系</li>
+                        <li>项目依赖关系</li>
+                        <li>数据流程图</li>
+                    </ul>
+                </div>
+                
+                <!-- 互联网搜索示例 -->
+                <div class="message user-message">
+                    <div class="mb-1 text-xs text-gray-500 text-right">您</div>
+                    搜索最新的人工智能新闻
+                </div>
+                
+                <div class="message ai-message">
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    <p>我已为您搜索了最新的人工智能新闻，以下是一些相关结果：</p>
+                    
+                    <div class="search-results">
+                        <div class="search-result-item">
+                            <div class="search-result-title">OpenAI发布GPT-4 Turbo：更强大的多模态能力和更低的使用成本</div>
+                            <div class="search-result-snippet">OpenAI在开发者大会上发布了GPT-4的升级版本，新模型支持更长的上下文窗口，处理图像和文本的能力显著提升...</div>
+                            <div class="search-result-url">ai-news.example.com • 2小时前</div>
+                        </div>
+                        
+                        <div class="search-result-item">
+                            <div class="search-result-title">谷歌推出新一代AI助手Gemini，挑战GPT-4的市场地位</div>
+                            <div class="search-result-snippet">谷歌今日发布了其最新的AI模型Gemini，该模型在多项基准测试中表现优异，展示了强大的推理能力和多语言理解...</div>
+                            <div class="search-result-url">tech-daily.example.com • 1天前</div>
+                        </div>
+                        
+                        <div class="search-result-item">
+                            <div class="search-result-title">中国发布AI监管新规，强调伦理和安全</div>
+                            <div class="search-result-snippet">中国政府发布了一系列针对人工智能发展和应用的新监管规定，强调AI技术发展必须遵循伦理原则，保障数据安全...</div>
+                            <div class="search-result-url">global-tech.example.com • 3天前</div>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-3">这些是模拟的搜索结果示例。在实际应用中，我可以连接到搜索API获取实时的互联网信息。您需要我深入了解其中某个话题吗？</p>
+                </div>
+            </div>
+            
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="tool-button" id="search-button">
+                    <i class="fas fa-search"></i> 搜索
+                </div>
+                <div class="tool-button" id="graph-button">
+                    <i class="fas fa-project-diagram"></i> 图表
+                </div>
+            </div>
+            
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <div class="input-container">
+                    <input type="text" class="input-field" placeholder="输入您的问题..." id="message-input">
+                    <button class="send-button" id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 图数据结构展示容器 -->
+    <div class="graph-container" id="graph-container">
+        <div class="graph-header">
+            <div class="text-lg font-medium">关系图展示</div>
+            <button id="close-graph-button" class="text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="graph-content">
+            <canvas id="graph-canvas" class="graph-canvas"></canvas>
+            <div class="graph-controls">
+                <div class="graph-control-button" id="zoom-in-button">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="graph-control-button" id="zoom-out-button">
+                    <i class="fas fa-minus"></i>
+                </div>
+                <div class="graph-control-button" id="reset-graph-button">
+                    <i class="fas fa-redo"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新对话悬浮按钮 -->
+    <div class="new-chat-button" id="new-chat-button">
+        <i class="fas fa-plus"></i>
+        <div class="tooltip">开始新对话</div>
+    </div>
+    
+    <!-- 领域选择抽屉 -->
+    <div class="domain-drawer" id="domain-drawer">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-800">选择专业领域</h2>
+            <p class="text-sm text-gray-500 mt-1">选择一个领域以获得更专业的回答</p>
+        </div>
+        
+        <div class="domain-list">
+            <div class="domain-item active flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">通用助手</div>
+                    <div class="text-sm text-gray-500">日常问答与任务</div>
+                </div>
+            </div>
+            
+            <div class="domain-item flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">编程开发</div>
+                    <div class="text-sm text-gray-500">代码与技术问题</div>
+                </div>
+            </div>
+            
+            <div class="domain-item flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">学术研究</div>
+                    <div class="text-sm text-gray-500">论文与学术知识</div>
+                </div>
+            </div>
+            
+            <div class="domain-item flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">商业分析</div>
+                    <div class="text-sm text-gray-500">市场与商业策略</div>
+                </div>
+            </div>
+            
+            <div class="domain-item flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-paint-brush"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">创意写作</div>
+                    <div class="text-sm text-gray-500">故事与内容创作</div>
+                </div>
+            </div>
+            
+            <div class="domain-item flex items-center">
+                <div class="domain-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-800">健康生活</div>
+                    <div class="text-sm text-gray-500">健康建议与知识</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 聊天历史抽屉 -->
+    <div class="history-drawer" id="history-drawer">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-800">聊天历史</h2>
+            <p class="text-sm text-gray-500 mt-1">查看您之前的对话</p>
+        </div>
+        
+        <div id="history-list">
+            <!-- 如果没有历史记录，显示空状态 -->
+            <div class="empty-history" id="empty-history">
+                <i class="far fa-comment-dots"></i>
+                <p>暂无聊天历史</p>
+                <p class="text-sm mt-2">您的对话将会保存在这里</p>
+            </div>
+            
+            <!-- 历史记录项目示例 -->
+            <div class="history-item flex flex-col" style="display: none;">
+                <div class="history-date">2023年6月15日 14:30</div>
+                <div class="history-preview font-medium">关于人工智能的讨论</div>
+                <div class="history-preview text-sm">我们讨论了AI的发展趋势和应用场景...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 抽屉遮罩层 -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const domainButton = document.getElementById('domain-button');
+            const domainDrawer = document.getElementById('domain-drawer');
+            const historyButton = document.getElementById('history-button');
+            const historyDrawer = document.getElementById('history-drawer');
+            const drawerOverlay = document.getElementById('drawer-overlay');
+            const domainItems = document.querySelectorAll('.domain-item');
+            const sendButton = document.getElementById('send-button');
+            const messageInput = document.getElementById('message-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const newChatButton = document.getElementById('new-chat-button');
+            
+            // 打开/关闭领域抽屉
+            domainButton.addEventListener('click', function() {
+                // 关闭历史抽屉（如果打开）
+                historyDrawer.classList.remove('open');
+                // 切换领域抽屉
+                domainDrawer.classList.toggle('open');
+                drawerOverlay.classList.toggle('open');
+            });
+            
+            // 打开/关闭历史抽屉
+            historyButton.addEventListener('click', function() {
+                // 关闭领域抽屉（如果打开）
+                domainDrawer.classList.remove('open');
+                // 切换历史抽屉
+                historyDrawer.classList.toggle('open');
+                drawerOverlay.classList.toggle('open');
+            });
+            
+            // 点击遮罩层关闭所有抽屉
+            drawerOverlay.addEventListener('click', function() {
+                domainDrawer.classList.remove('open');
+                historyDrawer.classList.remove('open');
+                drawerOverlay.classList.remove('open');
+            });
+            
+            // 选择领域
+            domainItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // 移除所有active类
+                    domainItems.forEach(i => i.classList.remove('active'));
+                    // 添加active类到当前点击的项目
+                    this.classList.add('active');
+                    // 关闭抽屉
+                    domainDrawer.classList.remove('open');
+                    drawerOverlay.classList.remove('open');
+                    
+                    // 添加系统消息提示领域切换
+                    const domainName = this.querySelector('.font-medium').textContent;
+                    addAIMessage(`已切换到「${domainName}」领域，我将为您提供更专业的回答。`);
+                });
+            });
+            
+            // 发送消息
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    addUserMessage(message);
+                    messageInput.value = '';
+                    
+                    // 显示AI正在输入
+                    showTypingIndicator();
+                    
+                    // 模拟AI回复（实际应用中这里应该是API调用）
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        const aiResponse = getAIResponse(message);
+                        addAIMessage(aiResponse);
+                        
+                        // 保存对话到历史记录
+                        saveConversation();
+                    }, 1000 + Math.random() * 2000);
+                }
+            }
+            
+            // 点击发送按钮
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 按Enter发送
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // 添加用户消息
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.innerHTML = `
+                    <div class="mb-1 text-xs text-gray-500 text-right">您</div>
+                    ${text}
+                `;
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // 添加AI消息
+            function addAIMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = `
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    ${text}
+                `;
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // 显示正在输入指示器
+            function showTypingIndicator() {
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.className = 'message ai-message typing';
+                indicatorDiv.innerHTML = `
+                    <div class="mb-1 text-xs text-gray-500">STELLA</div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                indicatorDiv.id = 'typing-indicator';
+                chatMessages.appendChild(indicatorDiv);
+                scrollToBottom();
+            }
+            
+            // 移除正在输入指示器
+            function removeTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+            
+            // 滚动到底部
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 简单的AI回复逻辑（示例）
+            function getAIResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                if (lowerMessage.includes('你好') || lowerMessage.includes('嗨') || lowerMessage.includes('hi')) {
+                    return '您好！很高兴为您服务。有什么我可以帮助您的吗？';
+                } else if (lowerMessage.includes('谢谢') || lowerMessage.includes('感谢')) {
+                    return '不客气！如果还有其他问题，随时可以问我。';
+                } else if (lowerMessage.includes('再见') || lowerMessage.includes('拜拜')) {
+                    return '再见！祝您有愉快的一天。需要帮助时随时回来。';
+                } else if (lowerMessage.includes('名字') || lowerMessage.includes('叫什么')) {
+                    return '我是Smart Stella，您的智能AI助手。很高兴认识您！';
+                } else if (lowerMessage.includes('能做什么') || lowerMessage.includes('功能')) {
+                    return '我可以回答问题、提供信息、协助日常任务、进行创意写作、翻译语言等。您可以通过左上角的菜单选择不同的专业领域，让我更好地为您服务。';
+                } else {
+                    return '我理解您的问题。作为AI助手，我会尽力提供最准确的回答。您可以尝试更换专业领域或者提供更多细节，以获得更精确的帮助。';
+                }
+            }
+            
+            // 保存聊天历史
+            function saveConversation() {
+                // 获取当前对话内容
+                const messages = chatMessages.querySelectorAll('.message');
+                if (messages.length < 2) return; // 至少需要一问一答
+                
+                // 创建新的历史记录
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                // 获取第一个用户问题作为标题
+                const firstUserMessage = Array.from(messages).find(msg => msg.classList.contains('user-message'));
+                const title = firstUserMessage ? firstUserMessage.textContent.replace('您', '').trim() : '新对话';
+                
+                // 获取最后一个AI回复作为预览
+                const lastAIMessage = Array.from(messages).filter(msg => msg.classList.contains('ai-message')).pop();
+                const preview = lastAIMessage ? lastAIMessage.textContent.replace('STELLA', '').trim() : '';
+                
+                // 存储对话内容（实际应用中应该使用localStorage或数据库）
+                const conversationData = {
+                    id: Date.now(),
+                    date: dateStr,
+                    title: title,
+                    preview: preview,
+                    messages: Array.from(messages).map(msg => {
+                        return {
+                            type: msg.classList.contains('user-message') ? 'user' : 'ai',
+                            content: msg.innerHTML
+                        };
+                    })
+                };
+                
+                // 创建历史记录项
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item flex flex-col';
+                historyItem.innerHTML = `
+                    <div class="history-date">${dateStr}</div>
+                    <div class="history-preview font-medium">${title.length > 30 ? title.substring(0, 30) + '...' : title}</div>
+                    <div class="history-preview text-sm">${preview.length > 50 ? preview.substring(0, 50) + '...' : preview}</div>
+                `;
+                
+                const conversations = JSON.parse(localStorage.getItem('stella_conversations') || '[]');
+                conversations.unshift(conversationData);
+                localStorage.setItem('stella_conversations', JSON.stringify(conversations));
+                
+                // 添加点击事件以加载对话
+                historyItem.addEventListener('click', function() {
+                    loadConversation(conversationData);
+                    historyDrawer.classList.remove('open');
+                    drawerOverlay.classList.remove('open');
+                });
+                
+                // 添加到历史列表
+                const historyList = document.getElementById('history-list');
+                const emptyHistory = document.getElementById('empty-history');
+                if (emptyHistory) {
+                    emptyHistory.style.display = 'none';
+                }
+                historyList.insertBefore(historyItem, historyList.firstChild);
+            }
+            
+            // 加载历史对话
+            function loadConversation(conversation) {
+                // 清空当前对话
+                chatMessages.innerHTML = '';
+                
+                // 加载保存的消息
+                conversation.messages.forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${msg.type === 'user' ? 'user-message' : 'ai-message'}`;
+                    messageDiv.innerHTML = msg.content;
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                // 滚动到底部
+                scrollToBottom();
+            }
+            
+            // 加载保存的对话历史
+            function loadSavedConversations() {
+                const conversations = JSON.parse(localStorage.getItem('stella_conversations') || '[]');
+                const historyList = document.getElementById('history-list');
+                const emptyHistory = document.getElementById('empty-history');
+                
+                if (conversations.length === 0) {
+                    if (emptyHistory) {
+                        emptyHistory.style.display = 'block';
+                    }
+                    return;
+                }
+                
+                if (emptyHistory) {
+                    emptyHistory.style.display = 'none';
+                }
+                
+                conversations.forEach(conversation => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item flex flex-col';
+                    historyItem.innerHTML = `
+                        <div class="history-date">${conversation.date}</div>
+                        <div class="history-preview font-medium">${conversation.title}</div>
+                        <div class="history-preview text-sm">${conversation.preview}</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        loadConversation(conversation);
+                        historyDrawer.classList.remove('open');
+                        drawerOverlay.classList.remove('open');
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // 在页面加载时加载保存的对话
+            loadSavedConversations();
+            
+            // 开始新对话
+            newChatButton.addEventListener('click', function() {
+                // 显示确认对话框
+                if (chatMessages.querySelectorAll('.message').length > 1) {
+                    if (confirm('确定要开始新对话吗？当前对话将会保存到历史记录。')) {
+                        // 保存当前对话到历史记录
+                        saveConversation();
+                        
+                        // 清空聊天区域
+                        chatMessages.innerHTML = '';
+                        
+                        // 添加欢迎消息
+                        addAIMessage('您好！我是您的智能助手Stella。今天我能为您做些什么？');
+                    }
+                } else {
+                    // 如果当前没有对话，直接清空并添加欢迎消息
+                    chatMessages.innerHTML = '';
+                    addAIMessage('您好！我是您的智能助手Stella。今天我能为您做些什么？');
+                }
+            });
+            
+            // 图数据结构展示
+            const graphContainer = document.getElementById('graph-container');
+            const showGraphButton = document.getElementById('show-graph-button');
+            const closeGraphButton = document.getElementById('close-graph-button');
+            const graphButton = document.getElementById('graph-button');
+            
+            function toggleGraphContainer() {
+                graphContainer.classList.toggle('open');
+                if (graphContainer.classList.contains('open')) {
+                    initGraph();
+                }
+            }
+            
+            if (showGraphButton) {
+                showGraphButton.addEventListener('click', toggleGraphContainer);
+            }
+            
+            closeGraphButton.addEventListener('click', function() {
+                graphContainer.classList.remove('open');
+            });
+            
+            graphButton.addEventListener('click', toggleGraphContainer);
+            
+            // 初始化图数据结构
+            function initGraph() {
+                const canvas = document.getElementById('graph-canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 设置canvas尺寸
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // 这里是一个简单的图数据结构绘制示例
+                // 在实际应用中，应该使用专业的图可视化库，如D3.js、Sigma.js或Cytoscape.js
+                
+                // 节点数据
+                const nodes = [
+                    { id: 1, label: '总经理', x: canvas.width / 2, y: 50, color: '#8e6f47' },
+                    { id: 2, label: '技术总监', x: canvas.width / 3, y: 150, color: '#1a5fb4' },
+                    { id: 3, label: '市场总监', x: canvas.width * 2/3, y: 150, color: '#1a5fb4' },
+                    { id: 4, label: '开发主管', x: canvas.width / 4, y: 250, color: '#0a7a4c' },
+                    { id: 5, label: '测试主管', x: canvas.width * 2/5, y: 250, color: '#0a7a4c' },
+                    { id: 6, label: '销售主管', x: canvas.width * 3/5, y: 250, color: '#0a7a4c' },
+                    { id: 7, label: '客服主管', x: canvas.width * 3/4, y: 250, color: '#0a7a4c' },
+                ];
+                
+                // 边数据
+                const edges = [
+                    { source: 1, target: 2 },
+                    { source: 1, target: 3 },
+                    { source: 2, target: 4 },
+                    { source: 2, target: 5 },
+                    { source: 3, target: 6 },
+                    { source: 3, target: 7 },
+                ];
+                
+                // 清空画布
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制边
+                ctx.strokeStyle = '#aaa';
+                ctx.lineWidth = 2;
+                
+                edges.forEach(edge => {
+                    const source = nodes.find(n => n.id === edge.source);
+                    const target = nodes.find(n => n.id === edge.target);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                });
+                
+                // 绘制节点
+                nodes.forEach(node => {
+                    // 节点圆形
+                    ctx.fillStyle = node.color;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 25, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 节点标签
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.label, node.x, node.y);
+                });
+            }
+            
+            // 缩放控制
+            const zoomInButton = document.getElementById('zoom-in-button');
+            const zoomOutButton = document.getElementById('zoom-out-button');
+            const resetGraphButton = document.getElementById('reset-graph-button');
+            
+            zoomInButton.addEventListener('click', function() {
+                // 实际应用中实现缩放功能
+                console.log('Zoom in');
+            });
+            
+            zoomOutButton.addEventListener('click', function() {
+                // 实际应用中实现缩放功能
+                console.log('Zoom out');
+            });
+            
+            resetGraphButton.addEventListener('click', function() {
+                // 实际应用中实现重置功能
+                console.log('Reset graph');
+                initGraph();
+            });
+            
+            // 工具按钮
+            const searchButton = document.getElementById('search-button');
+            const dataButton = document.getElementById('data-button');
+            
+            searchButton.addEventListener('click', function() {
+                // 添加搜索功能
+                const searchQuery = prompt('请输入搜索关键词：');
+                if (searchQuery && searchQuery.trim() !== '') {
+                    addUserMessage(searchQuery);
+                    
+                    // 显示AI正在输入
+                    showTypingIndicator();
+                    
+                    // 模拟搜索结果
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        addAIMessage(`我已为您搜索"${searchQuery}"，以下是一些相关结果：<div class="search-results mt-2">
+                            <div class="search-result-item">
+                                <div class="search-result-title">搜索结果 1</div>
+                                <div class="search-result-snippet">这是关于"${searchQuery}"的第一个搜索结果摘要...</div>
+                                <div class="search-result-url">example.com/result1</div>
+                            </div>
+                            <div class="search-result-item">
+                                <div class="search-result-title">搜索结果 2</div>
+                                <div class="search-result-snippet">这是关于"${searchQuery}"的第二个搜索结果摘要...</div>
+                                <div class="search-result-url">example.com/result2</div>
+                            </div>
+                        </div>`);
+                    }, 1500);
+                }
+            });
+            
+            dataButton.addEventListener('click', function() {
+                // 添加数据展示功能
+                addUserMessage('请给我展示一些结构化数据');
+                
+                // 显示AI正在输入
+                showTypingIndicator();
+                
+                // 模拟数据结果
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addAIMessage(`以下是一个结构化数据示例：<div class="structured-data">
+                        <div class="structured-data-header">
+                            <div class="structured-data-title">示例数据 (JSON)</div>
+                            <div class="structured-data-actions">
+                                <div class="structured-data-action"><i class="fas fa-copy"></i> 复制</div>
+                                <div class="structured-data-action"><i class="fas fa-download"></i> 下载</div>
+                            </div>
+                        </div>
+<pre>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"type"</span>: <span class="json-string">"示例"</span>,
+    <span class="json-key">"items"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-number">1</span>,
+        <span class="json-key">"name"</span>: <span class="json-string">"项目1"</span>,
+        <span class="json-key">"value"</span>: <span class="json-number">42</span>
+      },
+      {
+        <span class="json-key">"id"</span>: <span class="json-number">2</span>,
+        <span class="json-key">"name"</span>: <span class="json-string">"项目2"</span>,
+        <span class="json-key">"value"</span>: <span class="json-number">73</span>
+      }
+    ]
+  }
+}</pre>
+                    </div>`);
+                }, 1500);
+            });
+            
+            // 结构化数据操作
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.structured-data-action')) {
+                    const action = e.target.closest('.structured-data-action');
+                    if (action.textContent.includes('复制')) {
+                        alert('数据已复制到剪贴板');
+                    } else if (action.textContent.includes('下载')) {
+                        alert('数据下载已开始');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

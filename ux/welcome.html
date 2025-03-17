@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎 - Smart Stella</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .welcome-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .status-bar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            color: #555555;
+        }
+        .accent-color {
+            background-color: #8e6f47;
+            color: #ffffff;
+        }
+        .accent-square {
+            width: 100px;
+            height: 100px;
+            background-color: #8e6f47;
+            position: absolute;
+            top: 20%;
+            right: 8%;
+            animation: float 6s ease-in-out infinite;
+            transform-origin: center;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(142, 111, 71, 0.2);
+        }
+        .content-area {
+            margin-top: 80px;
+            padding: 0 8%;
+            animation: fadeIn 1.2s ease-out;
+        }
+        .brand-name {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-top: 0.5rem;
+            color: #333333;
+        }
+        .action-buttons {
+            width: 100%;
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        .action-button {
+            padding: 1rem 0;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            opacity: 0.9;
+        }
+        .login-button {
+            position: relative;
+            overflow: hidden;
+        }
+        .login-indicator {
+            width: 40%;
+            height: 3px;
+            background-color: white;
+            margin: 0.5rem auto 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: shimmer 2s infinite;
+        }
+        .vertical-line {
+            position: absolute;
+            right: 10%;
+            top: 30%;
+            bottom: 10%;
+            width: 1px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+        
+        @media (max-width: 640px) {
+            .brand-name {
+                font-size: 3.5rem;
+            }
+            .accent-square {
+                width: 80px;
+                height: 80px;
+                top: 15%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>12:29</div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <h2 class="text-xl font-medium text-gray-600">Start a new journey with</h2>
+            <h1 class="brand-name">SMART<br>STELLA</h1>
+            <p class="mt-4 text-gray-600 max-w-xs">探索智能生活的无限可能，从这里开始您的全新体验。</p>
+        </div>
+        
+        <div class="accent-square"></div>
+        <div class="vertical-line"></div>
+        
+        <div class="action-buttons">
+            <a href="#" class="action-button w-1/3 bg-gray-100 text-gray-700">
+                跳过
+            </a>
+            <a href="main.html" class="action-button login-button w-2/3 accent-color">
+                <span>登录</span>
+                <div class="login-indicator"></div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 添加简单的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const accentSquare = document.querySelector('.accent-square');
+            
+            // 鼠标移动时轻微调整方块位置，增加交互感
+            document.addEventListener('mousemove', function(e) {
+                const moveX = (e.clientX - window.innerWidth / 2) / 50;
+                const moveY = (e.clientY - window.innerHeight / 2) / 50;
+                
+                accentSquare.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        });
+    </script>
+</body>
+</html> 

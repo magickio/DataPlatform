@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 // 定义组件属性
 const props = defineProps({
   // 导航栏标题
@@ -33,13 +31,20 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // 是否显示左侧菜单按钮
+  showMenu: {
+    type: Boolean,
+    default: false,
+  },
+  // 是否显示历史记录按钮
+  showHistory: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 // 定义事件
-const emit = defineEmits(['back', 'action'])
-
-// 添加一个ref来跟踪当前语言
-const currentLanguage = ref('zh')
+const emit = defineEmits(['back', 'action', 'menu', 'history'])
 
 // 处理返回按钮点击
 function handleBack() {
@@ -61,20 +66,40 @@ function handleAction() {
     })
   }
 }
+
+// 处理菜单按钮点击
+function handleMenu() {
+  emit('menu')
+}
+
+// 处理历史记录按钮点击
+function handleHistory() {
+  emit('history')
+}
 </script>
 
 <template>
-  <view class="nav-bar navbar h-11 flex items-center justify-between border-b border-gray-200 bg-gray-100 px-4">
+  <view class="nav-bar h-15 flex items-center justify-between border-b border-gray-200 bg-white px-4">
     <view class="flex items-center">
-      <view v-if="showBack" class="i-fa-solid:chevron-left mr-2" @click="handleBack" />
-      <transition name="slide" mode="out-in">
-        <text :key="currentLanguage" class="font-semibold">
+      <view v-if="showBack" class="text-accent-color i-fa-solid:chevron-left mr-2" style="font-size: 1.1rem;" @click="handleBack" />
+      <view v-if="showMenu" class="text-accent-color i-fa-solid:bars mr-4" style="font-size: 1.1rem;" @click="handleMenu" />
+      <view class="text-lg text-gray-800 font-medium">
+        <text v-if="title.includes('SMART')" class="accent-color">
+          SMART
+        </text>
+        <text v-if="title.includes('SMART')">
+          STELLA
+        </text>
+        <text v-else>
           {{ title }}
         </text>
-      </transition>
+      </view>
     </view>
-    <view v-if="showAction" class="flex items-center" @click="handleAction">
-      <view :class="actionIcon" />
+    <view class="flex items-center space-x-4">
+      <view v-if="showHistory" class="text-accent-color i-fa-solid:history" style="font-size: 1.1rem;" @click="handleHistory" />
+      <view v-if="showAction" @click="handleAction">
+        <view class="text-accent-color" :class="[actionIcon]" style="font-size: 1.1rem;" />
+      </view>
     </view>
   </view>
 </template>
@@ -99,5 +124,13 @@ function handleAction() {
 .slide-leave-to {
   transform: translateX(-20px);
   opacity: 0;
+}
+
+.accent-color {
+  color: #8e6f47;
+}
+
+.text-accent-color {
+  color: #8e6f47;
 }
 </style>

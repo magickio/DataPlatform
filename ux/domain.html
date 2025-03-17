@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>领域选择 - 企业智能分析平台</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .domain-item {
+            transition: all 0.3s ease;
+        }
+        .domain-item:hover {
+            background-color: #f1f5f9;
+        }
+        .domain-item.active {
+            background-color: #ebf5ff;
+            border-color: #3b82f6;
+        }
+        .input-area {
+            border-top: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        .voice-btn {
+            transition: all 0.2s ease;
+        }
+        .voice-btn:active {
+            transform: scale(0.95);
+            background-color: #e5e7eb;
+        }
+        .voice-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="flex items-center">
+            <a href="main.html" class="text-gray-700">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <span class="font-semibold">选择业务领域</span>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-auto p-4">
+        <!-- 搜索框 -->
+        <div class="mb-6">
+            <div class="relative">
+                <input type="text" placeholder="搜索业务领域..." class="w-full bg-white rounded-lg py-3 pl-10 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <button class="voice-btn absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 常用领域 -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-3">常用领域</h2>
+            <div class="space-y-2">
+                <div class="domain-item active flex items-center justify-between p-3 rounded-lg border">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 text-blue-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">IOE设备保养</h3>
+                            <p class="text-xs text-gray-500">设备状态与维护分析</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-check-circle text-blue-600"></i>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 text-green-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">ESG数据</h3>
+                            <p class="text-xs text-gray-500">环境社会治理指标</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 text-purple-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">财务数据</h3>
+                            <p class="text-xs text-gray-500">财务报表与预测分析</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全部领域 -->
+        <div>
+            <h2 class="text-lg font-semibold mb-3">全部领域</h2>
+            <div class="space-y-2">
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-orange-100 text-orange-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">人力资源</h3>
+                            <p class="text-xs text-gray-500">人员配置与绩效分析</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 text-red-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">销售数据</h3>
+                            <p class="text-xs text-gray-500">销售业绩与客户分析</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 text-yellow-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">生产制造</h3>
+                            <p class="text-xs text-gray-500">生产效率与质量分析</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">供应链</h3>
+                            <p class="text-xs text-gray-500">供应链效率与风险分析</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-pink-100 text-pink-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">市场营销</h3>
+                            <p class="text-xs text-gray-500">营销效果与投资回报分析</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="domain-item flex items-center justify-between p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="bg-teal-100 text-teal-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">项目管理</h3>
+                            <p class="text-xs text-gray-500">项目进度与资源分析</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部按钮区 -->
+    <div class="input-area p-4">
+        <a href="main.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-center transition duration-300 shadow-lg">
+            确认选择
+        </a>
+    </div>
+</body>
+</html> 

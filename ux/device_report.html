@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备状态报告 - 企业智能分析平台</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        .health-indicator {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .health-level {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .health-good {
+            background-color: #10b981;
+        }
+        .health-warning {
+            background-color: #f59e0b;
+        }
+        .health-critical {
+            background-color: #ef4444;
+        }
+        .input-area {
+            border-top: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        .mode-toggle {
+            background-color: #f1f5f9;
+            border-radius: 20px;
+            padding: 2px;
+        }
+        .mode-toggle-btn {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .mode-toggle-btn.active {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .tab-button {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        .voice-btn {
+            transition: all 0.2s ease;
+        }
+        .voice-btn:active {
+            transform: scale(0.95);
+            background-color: #e5e7eb;
+        }
+        .voice-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .device-status {
+            position: relative;
+            padding-left: 16px;
+        }
+        .device-status::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-good::before {
+            background-color: #10b981;
+        }
+        .status-warning::before {
+            background-color: #f59e0b;
+        }
+        .status-critical::before {
+            background-color: #ef4444;
+        }
+        .temperature-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 100px;
+            padding-top: 20px;
+        }
+        .temp-bar {
+            flex: 1;
+            margin: 0 2px;
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 2px 2px 0 0;
+            position: relative;
+        }
+        .temp-bar.warning {
+            background: linear-gradient(to top, #f59e0b, #fbbf24);
+        }
+        .temp-bar.critical {
+            background: linear-gradient(to top, #ef4444, #f87171);
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="flex items-center">
+            <a href="main.html" class="text-gray-700">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <span class="font-semibold">设备状态报告</span>
+        </div>
+        <div class="flex items-center">
+            <i class="fas fa-share-alt text-blue-600 mr-4"></i>
+            <a href="settings.html" class="text-gray-500">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-auto">
+        <!-- 查询信息 -->
+        <div class="p-4 bg-white border-b border-gray-200">
+            <div class="flex items-start justify-between mb-2">
+                <h1 class="text-xl font-bold">制鞋工厂设备状态报告</h1>
+                <span class="text-xs text-gray-500">2023-07-12</span>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-sm text-blue-800">
+                <i class="fas fa-search mr-2"></i>
+                <span>分析制鞋工厂关键设备运行状态，识别潜在风险并提供维护建议</span>
+            </div>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="flex border-b border-gray-200 bg-white">
+            <button class="tab-button active">概览</button>
+            <button class="tab-button">详细分析</button>
+            <button class="tab-button">维护建议</button>
+        </div>
+
+        <!-- 分析内容 -->
+        <div class="p-4">
+            <!-- 关键指标 -->
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3">关键指标</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">设备健康度</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">83.5%</span>
+                            <span class="ml-2 text-yellow-500">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </span>
+                        </div>
+                        <div class="health-indicator mt-2">
+                            <div class="health-level health-warning" style="width: 83.5%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">平均运行时间</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">286天</span>
+                            <span class="ml-2 text-green-500">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        </div>
+                        <div class="health-indicator mt-2">
+                            <div class="health-level health-good" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">预警设备数</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">4台</span>
+                            <span class="ml-2 text-red-500">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
+                        </div>
+                        <div class="health-indicator mt-2">
+                            <div class="health-level health-critical" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">平均产能利用率</p>
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold">78.3%</span>
+                            <span class="ml-2 text-green-500">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                        </div>
+                        <div class="health-indicator mt-2">
+                            <div class="health-level health-good" style="width: 78.3%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 温度趋势图 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-medium">车间温湿度状态</h3>
+                    <div class="text-xs text-gray-500">
+                        <i class="fas fa-circle text-blue-500 mr-1"></i> 正常
+                        <i class="fas fa-circle text-yellow-500 ml-2 mr-1"></i> 警告
+                        <i class="fas fa-circle text-red-500 ml-2 mr-1"></i> 危险
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">A区裁剪车间</span>
+                            <div>
+                                <span class="text-sm font-medium text-blue-600">26°C</span>
+                                <span class="text-xs text-gray-500 ml-1">45% 湿度</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">B区注塑车间</span>
+                            <div>
+                                <span class="text-sm font-medium text-yellow-600">32°C</span>
+                                <span class="text-xs text-gray-500 ml-1">38% 湿度</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-600 h-2 rounded-full" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">C区成型车间</span>
+                            <div>
+                                <span class="text-sm font-medium text-red-600">36°C</span>
+                                <span class="text-xs text-gray-500 ml-1">30% 湿度</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-600 h-2 rounded-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">D区包装车间</span>
+                            <div>
+                                <span class="text-sm font-medium text-blue-600">24°C</span>
+                                <span class="text-xs text-gray-500 ml-1">50% 湿度</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备状态列表 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">关键设备状态</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-cogs text-blue-600 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-sm">自动裁剪机 (AC-2000)</h4>
+                                <p class="device-status status-good text-xs text-gray-500 mt-1">运行正常</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium">负载: 68%</p>
+                            <div class="health-indicator">
+                                <div class="health-level health-good" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-shoe-prints text-blue-600 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-sm">鞋底注塑机 (INJ-350)</h4>
+                                <p class="device-status status-warning text-xs text-gray-500 mt-1">需要维护</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium">负载: 85%</p>
+                            <div class="health-indicator">
+                                <div class="health-level health-warning" style="width: 72%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-compress-alt text-blue-600 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-sm">热压成型机 (HP-500)</h4>
+                                <p class="device-status status-critical text-xs text-gray-500 mt-1">压力传感器故障</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium">负载: 42%</p>
+                            <div class="health-indicator">
+                                <div class="health-level health-critical" style="width: 55%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-tachometer-alt text-blue-600 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-sm">缝纫自动化系统 (SAS-2023)</h4>
+                                <p class="device-status status-warning text-xs text-gray-500 mt-1">送料机构磨损</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium">负载: 75%</p>
+                            <div class="health-indicator">
+                                <div class="health-level health-warning" style="width: 68%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-spray-can text-blue-600 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-sm">自动喷涂设备 (SP-100)</h4>
+                                <p class="device-status status-good text-xs text-gray-500 mt-1">运行正常</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium">负载: 70%</p>
+                            <div class="health-indicator">
+                                <div class="health-level health-good" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析摘要 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">分析摘要</h3>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p>制鞋工厂设备整体运行状况良好，设备健康度为83.5%，较上月略有下降。</p>
+                    <p>鞋底注塑机(INJ-350)温度控制系统波动较大，注塑精度受到影响，建议检查温控元件。</p>
+                    <p>热压成型机(HP-500)压力传感器出现故障，导致压力不稳定，需要紧急更换传感器。</p>
+                    <p>缝纫自动化系统(SAS-2023)送料机构磨损严重，影响布料输送精度，建议安排更换零件。</p>
+                </div>
+            </div>
+
+            <!-- 维护建议 -->
+            <div class="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <h3 class="font-medium mb-3">维护建议</h3>
+                <div class="space-y-3">
+                    <div class="flex items-start">
+                        <div class="bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700"><span class="font-medium">紧急：</span>更换热压成型机(HP-500)压力传感器，建议使用原厂P500-ST型号，预计维护时间2小时。</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-yellow-100 text-yellow-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-exclamation text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700"><span class="font-medium">重要：</span>更换缝纫自动化系统(SAS-2023)送料机构，建议在周末停产期间进行，预计维护时间4小时。</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                            <i class="fas fa-info text-xs"></i>
+                        </div>
+                        <p class="text-sm text-gray-700"><span class="font-medium">建议：</span>对鞋底注塑机(INJ-350)进行温控系统校准，并清理注塑模具，建议在下周例行维护时进行。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部输入区 -->
+    <div class="input-area p-4">
+        <!-- 模式切换 -->
+        <div class="flex justify-center mb-3">
+            <div class="mode-toggle flex">
+                <button class="mode-toggle-btn active">
+                    <i class="fas fa-brain mr-1"></i> 深度思考
+                </button>
+                <button class="mode-toggle-btn">
+                    <i class="fas fa-globe mr-1"></i> 联网搜索
+                </button>
+            </div>
+        </div>
+        
+        <!-- 输入框 -->
+        <div class="relative">
+            <input type="text" placeholder="提问或要求进一步分析..." class="w-full bg-gray-100 rounded-full py-3 pl-4 pr-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                <button class="voice-btn text-gray-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 mr-1">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="text-blue-600">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
